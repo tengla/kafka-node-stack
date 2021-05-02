@@ -9,7 +9,7 @@ const broker = process.env.BROKER;
   })
   const admin = kafka.admin()
   await admin.connect()
-  await createTopics(admin, 'records')
+  await createTopics(admin, 'records', 2)
   const producer = kafka.producer()
   await producer.connect()
   let n = 0
