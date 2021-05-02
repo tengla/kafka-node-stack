@@ -1,23 +1,11 @@
 version: "3.9"
 
 services:
-  producer:
-    build: producer
-    environment:
-      - BROKER=kafka:9092
-    restart: on-failure:10
-    depends_on:
-      - zookeeper 
-      - kafka
 
-  consumer:
-    build: consumer
-    environment:
-      - BROKER=kafka:9092
-    restart: on-failure:10
-    depends_on:
-      - zookeeper 
-      - kafka
+  zookeeper:
+    image: zookeeper
+    ports:
+      - "2181:2181"
 
   kafka:
     image: confluentinc/cp-kafka
@@ -27,10 +15,21 @@ services:
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
     ports:
       - "9092:9092"
-    depends_on: 
+    depends_on:
       - zookeeper
 
-  zookeeper:
-    image: zookeeper
-    ports:
-      - "2181:2181"
+  producer:
+    build: producer
+    environment:
+      - BROKER=kafka:9092
+    restart: on-failure:10
+    depends_on:
+      - kafka
+
+  consumer:
+    build: consumer
+    environment:
+      - BROKER=kafka:9092
+    restart: on-failure:10
+    depends_on:
+      - kafka
