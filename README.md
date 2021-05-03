@@ -4,10 +4,18 @@ Simple docker stack showing how to create a topic, produce messages within
 that topic and balance them with 2 partitions, and then
 finally consume messages on topic partitions with 2 instances.
 
+source the scripts:
 ```
-docker compose build
+source scripts.sh
 ```
 
+To start the thing:
 ```
-docker compose up --scale consumer=2 -d
+deploy
 ```
+
+To tear down and clean up:
+```
+teardown
+```
+(this might help if you're having trouble)

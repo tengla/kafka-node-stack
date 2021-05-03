@@ -1,25 +1,64 @@
 const { Kafka } = require('kafkajs');
-const createTopics = require('./create-topic');
-const broker = process.env.BROKER;
+const dns = require('dns');
+const createTopic = require('./create-topic');
+const deleteTopic = require('./delete-topic');
+const producerRun = require('./producer');
 
-(async () => {
-  const kafka = new Kafka({
-    clientId:"tdef",
-    brokers: [broker]
-  })
+console.log("argv", process.argv);
+
+const kafka = new Kafka({
+  clientId: "tdef",
+  brokers: [process.env.BROKER]
+})
+
+let n = 0;
+
+const wait = async () => {
+  try {
+    const admin = kafka.admin()
+    await admin.connect()
+    await admin.disconnect()
+  } catch (err) {
+    n += 1;
+    console.log(err);
+    return setTimeout(wait, 1000)
+  }
+  run();
+};
+
+wait();
+
+const run = async () => {
   const admin = kafka.admin()
-  await admin.connect()
-  await createTopics(admin, 'records', 2)
-  const producer = kafka.producer()
-  await producer.connect()
-  let n = 0
-  setInterval(() => {
-    producer.send({
-      topic: "records",
-      messages: [{
-        partition: (n+=1) % 2,
-        value: Buffer.from(`Hello from producer ${new Date().toISOString()}`)
-      }]
-    })
-  }, 1000)
-})()
+  switch (process.argv[2]) {
+    case "delete-topic":
+      try {
+        await admin.connect()
+        await deleteTopic(admin)
+      } catch (err) {
+        console.log(err)
+      }
+      await admin.disconnect()
+      break
+    case "create-topic":
+      try {
+        await admin.connect()
+        await createTopic(admin, 'records', 2)
+      } catch (err) {
+        console.log(err)
+      }
+      await admin.disconnect()
+      break
+    default:
+      await admin.connect()
+      try {
+        await createTopic(admin, 'records', 2)
+      } catch (err) {
+        console.log(err)
+      }
+      await admin.disconnect()
+      const producer = kafka.producer()
+      await producer.connect()
+      producerRun(producer);
+  }
+};
