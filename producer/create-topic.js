@@ -2,8 +2,9 @@
 const run = async (admin, topic, numPartitions) => {
   try {
     const topics = await admin.listTopics()
-    console.log('topics', topics);
+
     if(topics.includes(topic)) {
+      console.log('already have topic', topics);
        return;
     }
     await admin.createTopics({
