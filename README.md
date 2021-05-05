@@ -18,3 +18,14 @@ To tear down and clean up:
 ```
 teardown
 ```
+
+To view what's going on inside producer/consumer:
+```
+logs producer
+logs consumer
+```
+
+### Explore ksqldb
+
+Under ./ksql there's some Node.js stuff exploring ksqldb's http2 streaming interfaces.
+Ksqldb lets you make sql-like queries on topics.
