@@ -1,29 +1,69 @@
-function teardown {
-  docker compose down
-  docker volume prune -f
-  docker image rm kafka-node-stack_producer kafka-node-stack_consumer
-  docker image prune -f
+#!/usr/bin/env sh
+
+tick() {
+  n=$1
+  i=0
+  t=1
+  while [ "$i" -lt "$n" ]; do
+    echo -ne "$2"
+    sleep $t
+    i=$((i + t))
+  done
+  echo "$3"
 }
 
-function deploy {
+teardown() {
+  docker compose down
+  for img in kafka-node-stack_producer kafka-node-stack_consumer; do
+    id=$(docker image ls -q "$img")
+    if [ -n "$id" ]; then
+      echo "removing $id ($img)"
+      docker image rm "$id"
+    fi
+  done
+}
+
+deploy() {
   docker compose build
   docker compose up kafka zookeeper -d
-  echo "Wait for kafka to settle ... "
-  sleep 10
+  s=15
+  echo "Wait $s seconds for kafka to settle ..."
+  tick $s "." "done"
   docker compose up --scale consumer=2 -d
 }
 
-function logs {
-  docker compose logs "$1" -f
+logs() {
+  if [ -n "$1" ]; then
+    docker compose logs "$1" -f
+  else
+    echo "No service name given. Bye bye!"
+  fi
 }
 
-function image_parents {
-  let found=0
+image_parents() {
+  found=0
   for id in $(docker image ls -a -q); do
-    parent_id=$(docker inspect --format='{{.Parent}}' $id)
+    parent_id=$(docker inspect --format='{{.Parent}}' "$id")
     if [ -n "$parent_id" ]; then
       echo "$id has parent $parent_id"
       found=1
     fi
   done
+  return $found
 }
+
+if [ -n "$1" ]; then
+  case "$1" in
+  start)
+    echo "starting"
+    deploy
+    ;;
+  stop)
+    echo "stopping"
+    teardown
+    ;;
+  *)
+    echo "nothing to do"
+    ;;
+  esac
+fi

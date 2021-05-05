@@ -18,4 +18,3 @@ To tear down and clean up:
 ```
 teardown
 ```
-(this might help if you're having trouble)
