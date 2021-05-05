@@ -1,4 +1,4 @@
-# Kafka and Node.js
+# Explore Kafka and Ksqldb with Node.js
 
 Simple docker stack showing how to create a topic, produce messages within
 that topic and balance them with 2 partitions, and then
