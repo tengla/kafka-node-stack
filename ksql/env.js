@@ -1,7 +1,7 @@
 
 const config = () => {
   if (!process.env.KSQLDB) {
-    console.log('Variable KSQLDB is not present.')
+    console.warn('Variable KSQLDB is not present.')
     return {}
   }
   return {
