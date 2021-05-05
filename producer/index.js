@@ -34,7 +34,7 @@ const run = async () => {
     case "delete-topic":
       try {
         await admin.connect()
-        await deleteTopic(admin)
+        await deleteTopic(admin, 'trains')
       } catch (err) {
         console.log(err)
       }
@@ -43,7 +43,7 @@ const run = async () => {
     case "create-topic":
       try {
         await admin.connect()
-        await createTopic(admin, 'records', 2)
+        await createTopic(admin, 'trains', 2)
       } catch (err) {
         console.log(err)
       }
@@ -52,13 +52,13 @@ const run = async () => {
     default:
       await admin.connect()
       try {
-        await createTopic(admin, 'records', 2)
+        await createTopic(admin, 'trains', 2)
       } catch (err) {
         console.log(err)
       }
       await admin.disconnect()
       const producer = kafka.producer()
       await producer.connect()
-      producerRun(producer);
+      producerRun(producer, 'trains');
   }
 };

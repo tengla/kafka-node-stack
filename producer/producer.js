@@ -1,5 +1,5 @@
 
-module.exports = (producer) => {
+module.exports = (producer, topic) => {
   let n = 0
   setInterval(() => {
     const message = {
@@ -8,7 +8,7 @@ module.exports = (producer) => {
     };
     console.log('sending', message);
     producer.send({
-      topic: "records",
+      topic: topic,
       messages: [message]
     })
   }, 2500)

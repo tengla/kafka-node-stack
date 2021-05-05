@@ -1,33 +1,37 @@
 const { Kafka } = require('kafkajs');
 
-const kafka = new Kafka({
+
+const opts = {
   clientId: "tdef",
   brokers: [process.env.BROKER]
-})
+}
+
+const kafka = new Kafka(opts)
 
 let n = 0;
 
-const wait = async () => {
-  try {
-    const consumer = kafka.consumer({ groupId: "test" })
-    await consumer.connect()
-    await consumer.disconnect()
-  } catch (err) {
-    n += 1;
-    console.log(err);
-    return setTimeout(wait, 1000)
+const wait = (fn) => {
+  const inner = async () => {
+    try {
+      const consumer = kafka.consumer({ groupId: "test" })
+      await consumer.connect()
+      await consumer.disconnect()
+    } catch (err) {
+      n += 1;
+      console.log(err)
+      return setTimeout(inner, 1000)
+    }
   }
-  run();
+  inner();
+  fn();
 };
-
-wait();
 
 const run = async () => {
 
   const consumer = kafka.consumer({ groupId: "test" });
   await consumer.connect();
   await consumer.subscribe({
-    topic: "records",
+    topic: "trains",
     fromBeginning: true
   });
   await consumer.run({
@@ -38,3 +42,5 @@ const run = async () => {
     }
   });
 }
+
+run();
