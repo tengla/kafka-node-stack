@@ -14,6 +14,7 @@ tick() {
 
 teardown() {
   docker compose down
+  docker compose --profile app-only down
   for img in kafka-node-stack_producer kafka-node-stack_consumer; do
     id=$(docker image ls -q "$img")
     if [ -n "$id" ]; then
@@ -25,15 +26,16 @@ teardown() {
 
 deploy() {
   docker compose build
-  docker compose up kafka zookeeper -d
+  docker compose up -d
   s=15
   echo "Wait $s seconds for kafka to settle ..."
   tick $s "." "done"
-  docker compose up --scale consumer=2 -d
+  docker compose --profile app-only up --scale consumer=2 -d
 }
 
 logs() {
-  if [ -n "$1" ]; then
+  if [ -n "$1" ]
+  then
     docker compose logs "$1" -f
   else
     echo "No service name given. Bye bye!"

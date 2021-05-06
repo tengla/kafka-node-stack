@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3"
 
 services:
 
@@ -58,6 +58,7 @@ services:
 
   producer:
     build: producer
+    profiles: ["app-only"]
     environment:
       - BROKER=kafka:9092
     restart: on-failure:10
@@ -66,6 +67,7 @@ services:
 
   consumer:
     build: consumer
+    profiles: ["app-only"]
     environment:
       - BROKER=kafka:9092
     restart: on-failure:10
