@@ -1,5 +1,24 @@
 const { Kafka } = require('kafkajs');
+const avro = require('avro-js');
+const util = require('util');
 
+const type = avro.parse({
+  name: 'Train',
+  type: 'record',
+  fields: [
+    {
+      name: 'kind', type: {
+        name: 'Kind', type: 'enum', symbols: ['TRAIN', 'BUS']
+      }
+    },
+    {
+      name: 'trainId', type: 'string'
+    },
+    {
+      name: 'message', type: 'string'
+    }
+  ]
+});
 
 const opts = {
   clientId: "tdef",
@@ -18,7 +37,7 @@ const wait = (fn) => {
       await consumer.disconnect()
     } catch (err) {
       n += 1;
-      console.log(err)
+      console.log(err.message)
       return setTimeout(inner, 1000)
     }
   }
@@ -36,11 +55,18 @@ const run = async () => {
   });
   await consumer.run({
     eachMessage: async result => {
-      console.log(
-        `topic: ${result.topic}, partition: ${result.partition},
-        message: ${result.message.value.toString()}`);
+      try {
+        const obj = type.fromBuffer(
+          result.message.value
+        );
+        console.log(
+          `topic: ${result.topic}, partition: ${result.partition},
+          message: ${util.inspect(obj, { colors: true, depth: 5 })}`);
+      } catch (err) {
+        console.log(err);
+      }
     }
   });
 }
 
-run();
+wait(run);
