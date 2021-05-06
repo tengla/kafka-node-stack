@@ -13,8 +13,8 @@ tick() {
 }
 
 teardown() {
-  docker compose down
   docker compose --profile app-only down
+  docker compose down
   for img in kafka-node-stack_producer kafka-node-stack_consumer; do
     id=$(docker image ls -q "$img")
     if [ -n "$id" ]; then
